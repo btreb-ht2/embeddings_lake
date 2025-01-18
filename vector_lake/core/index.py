@@ -7,6 +7,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from itertools import product
 from typing import Any
+from json import dumps
 
 import numpy as np
 import pandas as pd
@@ -263,7 +264,8 @@ class LazyBucket(BaseModel):
         if self.frame.empty:
             return
         # TODO: eval last sync time
-        self.frame.attrs["last_update"] = datetime.datetime.now(pytz.UTC)
+        now_dt = datetime.datetime.now(pytz.UTC)
+        self.frame.attrs["last_update"] = dumps(now_dt, indent=4, sort_keys=True, default=str)
         for k, v in attrs.items():
             self.frame.attrs[k] = v
 
