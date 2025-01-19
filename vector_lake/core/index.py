@@ -319,9 +319,27 @@ class S3Bucket(LazyBucket):
 
     @property
     def s3_client(self):
-        return boto3.client(
-            "s3", endpoint_url=os.environ.get("LOCALSTACK_ENDPOINT_URL")
-        )
+        endpoint_url = os.environ.get("LOCALSTACK_ENDPOINT_URL")
+    
+        if endpoint_url:
+            return boto3.client("s3", endpoint_url=endpoint_url)
+        else:
+            aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
+            aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
+            aws_region = os.environ.get("AWS_REGION")
+
+            if not all([aws_access_key_id, aws_secret_access_key, aws_region]):
+                raise Exception(
+                    "Missing required AWS environment variables: AWS_ACCESS_KEY_ID, "
+                    "AWS_SECRET_ACCESS_KEY, or AWS_REGION"
+                )
+
+            return boto3.client(
+                "s3",
+                aws_access_key_id=aws_access_key_id,
+                aws_secret_access_key=aws_secret_access_key,
+                region_name=aws_region
+            )
 
     def _lazy_load(self):
         if self.loaded:
