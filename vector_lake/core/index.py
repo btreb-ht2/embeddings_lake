@@ -192,8 +192,8 @@ class LazyBucket(BaseModel):
     dirty: bool = False
     frame: Any | None = None
     frame_schema: str = ["id", "vector", "metadata", "document", "timestamp"]
-    vectors = []
-    dirty_rows = []
+    vectors: list = []
+    dirty_rows: list = []
     hnsw: Any = None
     attrs: dict[str, Any] = {}
 
