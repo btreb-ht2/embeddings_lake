@@ -4,7 +4,7 @@ from functools import partial
 import numpy as np
 import pytest
 
-from vector_lake import VectorLake
+from embeddings_lake import VectorLake
 
 
 def factory_fn(

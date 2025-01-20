@@ -9,7 +9,7 @@ from langchain.docstore.document import Document
 from langchain.embeddings.base import Embeddings
 from langchain.vectorstores.base import VectorStore
 
-from vector_lake import VectorLake
+from embeddings_lake import VectorLake
 
 logger = logging.getLogger()
 DEFAULT_K = 4
@@ -20,7 +20,7 @@ class VectorLakeStore(VectorStore):
 
     def __init__(
         self,
-        location: str = ".vector_lake",
+        location: str = ".embeddings_lake",
         dimension: int = 384,
         embedding: Embeddings | None = None,
         **opts: Any,

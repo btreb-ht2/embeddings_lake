@@ -1,7 +1,7 @@
 import numpy as np
 
 from examples.env import *  # noqa
-from vector_lake import VectorLake
+from embeddings_lake import VectorLake
 
 if __name__ == "__main__":
     db = VectorLake(location="s3://vector-lake", dimension=5, approx_shards=243)

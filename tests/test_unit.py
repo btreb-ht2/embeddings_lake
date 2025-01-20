@@ -1,6 +1,6 @@
 import numpy as np
 
-from vector_lake.core.index import make_granularity, make_nodes
+from embeddings_lake.core.index import make_granularity, make_nodes
 
 
 class TestUnit:
