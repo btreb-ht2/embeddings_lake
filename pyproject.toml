@@ -1,20 +1,20 @@
 [tool.poetry]
-name = "vector_lake"
-version = "0.0.4"
+name = "embeddings_lake"
+version = "0.0.1"
 description = "S3 vector database for bigdata"
 authors = ["Alexander Miasoiedov <msoedov@gmail.com>"]
 maintainers = [
     "Alexander Miasoiedov <msoedov@gmail.com>",
 ]
-repository = "https://github.com/msoedov/vector_lake"
+repository = "https://github.com/btreb-ht2/embeddings_lake"
 license = "MIT"
 readme = "Readme.md"
 keywords = ["vector", "database", "bigdata"]
-packages = [{ include = "vector_lake", from = "." }]
+packages = [{ include = "embeddings_lake", from = "." }]
 
 
 [tool.poetry.scripts]
-vector_lake = "vector_lake.__main__:entrypoint"
+embeddings_lake = "embeddings_lake.__main__:entrypoint"
 
 [tool.poetry.dependencies]
 python = "^3.9"

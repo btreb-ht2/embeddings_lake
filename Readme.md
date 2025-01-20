@@ -36,14 +36,14 @@ VectorLake is a robust, vector database designed for low maintenance, cost, effi
 To get started with VectorLake, simply install the package using pip:
 
 ```shell
-pip install vector_lake
+pip install embeddings_lake
 ```
 
 ## ⛓️ Quick Start
 
 ```python
 import numpy as np
-from vector_lake import VectorLake
+from embeddings_lake import VectorLake
 
 db = VectorLake(location="s3://vector-lake", dimension=5, approx_shards=243)
 N = 100  # for example
@@ -66,7 +66,7 @@ Custom partition to group features by custom category
 
 ```python
 import numpy as np
-from vector_lake.core.index import Partition
+from embeddings_lake.core.index import Partition
 
 if __name__ == "__main__":
     db = Partition(location="s3://vector-lake", partition_key="feature", dimension=5)
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
 ```python
 import numpy as np
-from vector_lake import VectorLake
+from embeddings_lake import VectorLake
 
 db = VectorLake(location="/mnt/db", dimension=5, approx_shards=243)
 N = 100  # for example
@@ -112,7 +112,7 @@ db.query([0.56325391, 0.1500543, 0.88579166, 0.73536349, 0.7719873])
 from langchain.document_loaders import TextLoader
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
-from vector_lake.langchain import VectorLakeStore
+from embeddings_lake.langchain import VectorLakeStore
 
 loader = TextLoader("Readme.md")
 documents = loader.load()

@@ -15,7 +15,7 @@ import pytz
 from pydantic import BaseModel
 from sklearn.metrics.pairwise import cosine_similarity
 
-from vector_lake.core.hnsw import HNSW
+from embeddings_lake.core.hnsw import HNSW
 
 # Optional dependencies
 try:
@@ -192,8 +192,8 @@ class LazyBucket(BaseModel):
     dirty: bool = False
     frame: Any | None = None
     frame_schema: str = ["id", "vector", "metadata", "document", "timestamp"]
-    vectors: list = []
-    dirty_rows: list = []
+    vectors = []
+    dirty_rows = []
     hnsw: Any = None
     attrs: dict[str, Any] = {}
 
@@ -264,13 +264,14 @@ class LazyBucket(BaseModel):
         if self.frame.empty:
             return
         # TODO: eval last sync time
+        # self.frame.attrs["last_update"] = datetime.datetime.now(pytz.UTC)
         now_dt = datetime.datetime.now(pytz.UTC)
         self.frame.attrs["last_update"] = dumps(now_dt, indent=4, sort_keys=True, default=str)
         for k, v in attrs.items():
             self.frame.attrs[k] = v
 
         os.makedirs(self.db_location, exist_ok=True)
-        self.frame.to_parquet(self.frame_location, compression="gzip")
+        self.frame.to_parquet(self.frame_location, engine='pyarrow', compression="gzip")
         self.dirty = False
 
     def delete(self):
@@ -315,31 +316,13 @@ class S3Bucket(LazyBucket):
     @property
     def local_storage(self):
         db_location = self.db_location.replace("://", "_")
-        return f"/tmp/vector_lake_{db_location}"
+        return f"/tmp/embeddings_lake_{db_location}"
 
     @property
     def s3_client(self):
-        endpoint_url = os.environ.get("LOCALSTACK_ENDPOINT_URL")
-    
-        if endpoint_url:
-            return boto3.client("s3", endpoint_url=endpoint_url)
-        else:
-            aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
-            aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
-            aws_region = os.environ.get("AWS_REGION")
-
-            if not all([aws_access_key_id, aws_secret_access_key, aws_region]):
-                raise Exception(
-                    "Missing required AWS environment variables: AWS_ACCESS_KEY_ID, "
-                    "AWS_SECRET_ACCESS_KEY, or AWS_REGION"
-                )
-
-            return boto3.client(
-                "s3",
-                aws_access_key_id=aws_access_key_id,
-                aws_secret_access_key=aws_secret_access_key,
-                region_name=aws_region
-            )
+        return boto3.client(
+            "s3", endpoint_url=os.environ.get("LOCALSTACK_ENDPOINT_URL")
+        )
 
     def _lazy_load(self):
         if self.loaded:

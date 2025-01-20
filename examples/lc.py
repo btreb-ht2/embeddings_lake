@@ -2,7 +2,7 @@ from langchain.document_loaders import TextLoader
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 
-from vector_lake.langchain import VectorLakeStore
+from embeddings_lake.langchain import VectorLakeStore
 
 loader = TextLoader("Readme.md")
 documents = loader.load()

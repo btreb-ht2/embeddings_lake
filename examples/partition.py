@@ -1,7 +1,7 @@
 import numpy as np
 
 from examples.env import *  # noqa
-from vector_lake.core.index import Partition
+from embeddings_lake.core.index import Partition
 
 if __name__ == "__main__":
     db = Partition(location="s3://vector-lake", partition_key="feature", dimension=5)

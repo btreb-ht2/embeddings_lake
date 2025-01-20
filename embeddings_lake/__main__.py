@@ -1,6 +1,6 @@
 import numpy as np
 
-from vector_lake.core import Index
+from embeddings_lake.core import Index
 
 if __name__ == "__main__":
     db = Index(location="cosine_db/db", dimension=5, approx_shards=243)

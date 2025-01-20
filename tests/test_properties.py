@@ -6,8 +6,8 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from vector_lake import Index
-from vector_lake.core.index import make_granularity
+from embeddings_lake import Index
+from embeddings_lake.core.index import make_granularity
 
 
 def index_factory(dimension=5, approx_shards=243, size=100, location="/tmp/cosine_x"):
