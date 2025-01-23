@@ -2,7 +2,7 @@ from langchain.document_loaders import TextLoader
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 
-from embeddings_lake.langchain import VectorLakeStore
+from embeddings_lake.langchain import EmbeddingsLakeStore
 
 loader = TextLoader("Readme.md")
 documents = loader.load()
@@ -13,7 +13,7 @@ docs = text_splitter.split_documents(documents)
 
 # create the open-source embedding function
 embedding = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-db = VectorLakeStore.from_documents(documents=docs, embedding=embedding)
+db = EmbeddingsLakeStore.from_documents(documents=docs, embedding=embedding)
 
 query = "What is Vector Lake?"
 docs = db.similarity_search(query)

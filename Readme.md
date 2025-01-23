@@ -1,6 +1,6 @@
-# VectorLake
+# EmbeddingsLake
 
-VectorLake is a robust, vector database designed for low maintenance, cost, efficient storage and ANN querying of any size vector data distributed across S3 files.
+EmbeddingsLake is a robust, vector database designed for low maintenance, cost, efficient storage and ANN querying of any size vector data distributed across S3 files.
 
 <p>
 <img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/msoedov/vector_lake" />
@@ -15,7 +15,7 @@ VectorLake is a robust, vector database designed for low maintenance, cost, effi
 
 - Inspired by article [Which Vector Database Should I Use? A Comparison Cheatsheet](https://navidre.medium.com/which-vector-database-should-i-use-a-comparison-cheatsheet-cb330e55fca)
 
-- VectorLake created with tradeoff to minimize db maintenance, cost and provide custom data partitioning strategies
+- EmbeddingsLake created with tradeoff to minimize db maintenance, cost and provide custom data partitioning strategies
 
 - Native Big Data Support: Specifically designed to handle large datasets, making it ideal for big data projects.
 
@@ -33,7 +33,7 @@ VectorLake is a robust, vector database designed for low maintenance, cost, effi
 
 ## 📦 Installation
 
-To get started with VectorLake, simply install the package using pip:
+To get started with EmbeddingsLake, simply install the package using pip:
 
 ```shell
 pip install embeddings_lake
@@ -43,9 +43,9 @@ pip install embeddings_lake
 
 ```python
 import numpy as np
-from embeddings_lake import VectorLake
+from embeddings_lake import EmbeddingsLake
 
-db = VectorLake(location="s3://vector-lake", dimension=5, approx_shards=243)
+db = EmbeddingsLake(location="s3://vector-lake", dimension=5, approx_shards=243)
 N = 100  # for example
 D = 5  # Dimensionality of each vector
 embeddings = np.random.rand(N, D)
@@ -54,7 +54,7 @@ for em in embeddings:
     db.add(em, metadata={}, document="some document")
 db.persist()
 
-db = VectorLake(location="s3://vector-lake", dimension=5, approx_shards=243)
+db = EmbeddingsLake(location="s3://vector-lake", dimension=5, approx_shards=243)
 # re-init test
 db.query([0.56325391, 0.1500543, 0.88579166, 0.73536349, 0.7719873])
 
@@ -89,9 +89,9 @@ if __name__ == "__main__":
 
 ```python
 import numpy as np
-from embeddings_lake import VectorLake
+from embeddings_lake import EmbeddingsLake
 
-db = VectorLake(location="/mnt/db", dimension=5, approx_shards=243)
+db = EmbeddingsLake(location="/mnt/db", dimension=5, approx_shards=243)
 N = 100  # for example
 D = 5  # Dimensionality of each vector
 embeddings = np.random.rand(N, D)
@@ -100,7 +100,7 @@ for em in embeddings:
     db.add(em, metadata={}, document="some document")
 db.persist()
 
-db = VectorLake(location="/mnt/db", dimension=5, approx_shards=243)
+db = EmbeddingsLake(location="/mnt/db", dimension=5, approx_shards=243)
 # re-init test
 db.query([0.56325391, 0.1500543, 0.88579166, 0.73536349, 0.7719873])
 
@@ -112,7 +112,7 @@ db.query([0.56325391, 0.1500543, 0.88579166, 0.73536349, 0.7719873])
 from langchain.document_loaders import TextLoader
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
-from embeddings_lake.langchain import VectorLakeStore
+from embeddings_lake.langchain import EmbeddingsLakeStore
 
 loader = TextLoader("Readme.md")
 documents = loader.load()
@@ -123,7 +123,7 @@ docs = text_splitter.split_documents(documents)
 
 # create the open-source embedding function
 embedding = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-db = VectorLakeStore.from_documents(documents=docs, embedding=embedding)
+db = EmbeddingsLakeStore.from_documents(documents=docs, embedding=embedding)
 
 query = "What is Vector Lake?"
 docs = db.similarity_search(query)
@@ -133,11 +133,11 @@ print(docs[0].page_content)
 
 ```
 
-## Why VectorLake?
+## Why EmbeddingsLake?
 
-VectorLake gives you the functionality of a simple, resilient vector database, but with very easy setup and low operational overhead. With it you've got a lightweight and reliable distributed vector store.
+EmbeddingsLake gives you the functionality of a simple, resilient vector database, but with very easy setup and low operational overhead. With it you've got a lightweight and reliable distributed vector store.
 
-VectorLake leverages Hierarchical Navigable Small World (HNSW) for data partitioning across all vector data shards. This ensures that each modification to the system aligns with vector distance. You can learn more about the design here.
+EmbeddingsLake leverages Hierarchical Navigable Small World (HNSW) for data partitioning across all vector data shards. This ensures that each modification to the system aligns with vector distance. You can learn more about the design here.
 
 ### Limitations
 
@@ -147,16 +147,16 @@ TBD
 
 ## 👋 Contributing
 
-Contributions to VectorLake are welcome! If you'd like to contribute, please follow these steps:
+Contributions to EmbeddingsLake are welcome! If you'd like to contribute, please follow these steps:
 
 - Fork the repository on GitHub
 - Create a new branch for your changes
 - Commit your changes to the new branch
 - Push your changes to the forked repository
-- Open a pull request to the main VectorLake repository
+- Open a pull request to the main EmbeddingsLake repository
 
 Before contributing, please read the contributing guidelines.
 
 ## License
 
-VectorLake is released under the MIT License.
+EmbeddingsLake is released under the MIT License.

@@ -529,7 +529,7 @@ class Index(BaseModel):
             len(bucket)
 
 
-class VectorLake(Index):
+class EmbeddingsLake(Index):
     def add(self, embedding: list, metadata: dict, document: str):
         if not metadata:
             # metadata can not be empty
@@ -550,7 +550,7 @@ class VectorLake(Index):
         return rows
 
 
-class Partition(VectorLake):
+class Partition(EmbeddingsLake):
     approx_shards: int = 0
     partition_key: str = "partition"
 
