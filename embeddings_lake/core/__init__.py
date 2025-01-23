@@ -1,3 +1,3 @@
-from .index import Index, VectorLake  # noqa
+from .index import Index, EmbeddingsLake  # noqa
 
-__all__ = ["Index", "VectorLake"]
+__all__ = ["Index", "EmbeddingsLake"]

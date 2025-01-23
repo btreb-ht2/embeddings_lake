@@ -4,7 +4,7 @@ from functools import partial
 import numpy as np
 import pytest
 
-from embeddings_lake import VectorLake
+from embeddings_lake import EmbeddingsLake
 
 
 def factory_fn(
@@ -14,7 +14,7 @@ def factory_fn(
     location="/tmp/cosine_x",
     force_clean=False,
 ):
-    db = VectorLake(location=location, dimension=dimension, approx_shards=approx_shards)
+    db = EmbeddingsLake(location=location, dimension=dimension, approx_shards=approx_shards)
     if force_clean:
         db.delete_local()
     N = size

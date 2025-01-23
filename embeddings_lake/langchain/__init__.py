@@ -1,4 +1,4 @@
-"""Wrapper around VectorLakeStore embeddings."""
+"""Wrapper around EmbeddingsLakeStore embeddings."""
 from __future__ import annotations
 
 import asyncio
@@ -9,13 +9,13 @@ from langchain.docstore.document import Document
 from langchain.embeddings.base import Embeddings
 from langchain.vectorstores.base import VectorStore
 
-from embeddings_lake import VectorLake
+from embeddings_lake import EmbeddingsLake
 
 logger = logging.getLogger()
 DEFAULT_K = 4
 
 
-class VectorLakeStore(VectorStore):
+class EmbeddingsLakeStore(VectorStore):
     """Interface for vector lake stores."""
 
     def __init__(
@@ -25,11 +25,11 @@ class VectorLakeStore(VectorStore):
         embedding: Embeddings | None = None,
         **opts: Any,
     ) -> None:
-        """Initialize with VectorLake client."""
+        """Initialize with EmbeddingsLake client."""
 
         defaults = {"approx_shards": 10}
         opts = {**defaults, **opts}
-        self._client = VectorLake(location=location, dimension=dimension, **opts)
+        self._client = EmbeddingsLake(location=location, dimension=dimension, **opts)
         self._embedding_function = embedding
         if not self._embedding_function:
             from langchain.embeddings.sentence_transformer import (
@@ -96,7 +96,7 @@ class VectorLakeStore(VectorStore):
         embedding: Embeddings,
         metadatas: list[dict] | None = None,
         **kwargs: Any,
-    ) -> VectorLakeStore:
+    ) -> EmbeddingsLakeStore:
         """Return VectorStore initialized from texts and embeddings."""
         instance = cls(embedding=embedding, **kwargs)
         instance.add_texts(texts, metadatas=metadatas, **kwargs)
@@ -104,11 +104,11 @@ class VectorLakeStore(VectorStore):
 
     @classmethod
     async def afrom_texts(
-        cls: type[VectorLakeStore],
+        cls: type[EmbeddingsLakeStore],
         texts: list[str],
         embedding: Embeddings,
         metadatas: list[dict] | None = None,
         **kwargs: Any,
-    ) -> VectorLakeStore:
+    ) -> EmbeddingsLakeStore:
         """Return VectorStore initialized from texts and embeddings."""
         asyncio.to_thread(cls.from_texts, texts, embedding, metadatas, **kwargs)
