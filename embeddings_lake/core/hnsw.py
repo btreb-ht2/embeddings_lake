@@ -2,6 +2,7 @@ from heapq import heapify, heappop, heappush, heapreplace, nlargest, nsmallest
 from math import log2
 from operator import itemgetter
 from random import random
+from sklearn.metrics.pairwise import paired_cosine_distances
 
 import numpy as np
 
@@ -12,10 +13,16 @@ DISTANCE_COSINE = "cosine"
 def l2_distance(a, b):
     return np.linalg.norm(a - b)
 
-
 def cosine_distance(a, b):
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+    a = np.asarray(a)
+    b = np.asarray(b)
 
+    if a.ndim == 1:
+        a = a.reshape(1, -1)
+    if b.ndim == 1:
+        b = b.reshape(1, -1)
+
+    return paired_cosine_distances(a, b)[0]
 
 class HNSW:
     """Navigable small world models are defined as any network with

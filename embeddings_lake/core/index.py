@@ -6,7 +6,7 @@ import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from itertools import product
-from typing import Any
+from typing import Any, Union
 from json import dumps
 
 import numpy as np
@@ -121,9 +121,9 @@ def timer_decorator(func):
         result = func(*args, **kwargs)
         end_time = time.time()
         elapsed_time = end_time - start_time
-        logger.debug(
-            f"VPS for {func.__name__}: {1/elapsed_time:.1f} vectors per second"
-        )
+        # logger.debug(
+        #     f"VPS for {func.__name__}: {1/elapsed_time:.1f} vectors per second"
+        # )
         return result
 
     return wrapper
@@ -463,9 +463,11 @@ class Index(BaseModel):
         closest_index = self.lsh.route(vector)
         return closest_index
 
-    def adjacent_routing(self, vector) -> int:
-        closest_index = self.lsh.route(vector)
-        yield self.buckets[closest_index]
+    def adjacent_routing(self, vector, radius=1) -> int:
+        base_hash = self.lsh.route(vector)
+        # Added radius to include closest bucket as well
+        for delta in range(-radius, radius+1):
+            yield self.buckets[(base_hash + delta) % self.num_shards]
 
     def __repr__(self):
         return f"<Index({self.location=}, {self.metric_function=}, {self.max_cache_mb}, {self.num_shards=})>"
@@ -476,47 +478,34 @@ class Index(BaseModel):
         return shard_index
 
     @timer_decorator
-    def _query(self, vector, k: int = 4) -> list:
+    def _query(self, vector, k: int = 4, radius=5) -> list:
         results = []
-        computed_distances = []
-        rows = []
         vector = np.array(vector)
         ts = time.time()
-        rows_append = rows.append
-        for shard in self.adjacent_routing(vector):
+        s = 0
+        for shard in self.adjacent_routing(vector, radius=radius):
             te = time.time() - ts
-            logger.debug(f"adjacent routing took vps{1/te:.1f}")
             shard._lazy_load()
-            shard_np = np.array(shard.vectors)
-
             closest_indices_d = shard.search(vector, k=k)
-            closest_indices = [idx for idx, _ in closest_indices_d]
-            shard_rows = shard.dirty_rows
-            closest_vectors = shard_np[closest_indices]
-
-            for idx in closest_indices[::-1]:
-                rows_append(shard_rows[idx])
-            shard_rows = []
-
-            results.extend(list(closest_vectors))
-            computed_distances.extend([d for _, d in closest_indices_d])
-            if len(results) >= k:
-                break
-            logger.debug("next shard")
-
-        result_vectors = np.array([vector for vector in results])
-        if not result_vectors.any():
+            
+            for idx, distance in closest_indices_d:
+                results.append((
+                    distance,
+                    shard.dirty_rows[idx]
+                ))
+            s+=1
+            logging.info(f"Checked Shards: {s}")
+        if not results:
             return [], []
+        # Remove Duplicates and Sort based on the distance
+        results.sort(key=lambda x: x[0])
+        unique_results = list({row["id"]: {**row, "distance":float(dist)} for dist, row in results}.values())
+        vectors_ret = [result["vector"] for result in unique_results]
 
-        combined = list(zip(computed_distances, result_vectors, rows))
-        # Sort the combined list by distances
-        sorted_combined = sorted(combined, key=lambda x: x[0])
-        # Unzip the sorted list
-        sorted_distances, sorted_vectors, sorted_rows = zip(*sorted_combined)
-        return sorted_vectors[:k], sorted_rows[:k]
+        return vectors_ret[:k], unique_results[:k]
 
-    def query(self, vector, k: int = 4) -> list:
-        vectors, rows = self._query(vector, k)
+    def query(self, vector, k: int = 4, radius: int = 5) -> list:
+        vectors, rows = self._query(vector, k, radius)
         return vectors
 
     def persist(self):
@@ -548,7 +537,13 @@ class Index(BaseModel):
 
 
 class EmbeddingsLake(Index):
-    def add(self, embedding: list, metadata: dict, document: str):
+
+    def add(
+            self,
+            embedding: Union[list, np.ndarray],
+            metadata: dict,
+            document: str
+            ):
         if not metadata:
             # metadata can not be empty
             metadata = {"id": "1"}
@@ -561,10 +556,11 @@ class EmbeddingsLake(Index):
 
     def query(
         self,
-        query_embeddings: list,
+        query_embeddings: Union[list, np.ndarray],
         n_results: int = 4,
+        radius: int = 5
     ):
-        vectors, rows = super()._query(query_embeddings, k=n_results)
+        vectors, rows = super()._query(query_embeddings, k=n_results, radius=radius)
         return rows
 
 
