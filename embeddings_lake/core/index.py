@@ -13,7 +13,6 @@ import numpy as np
 import pandas as pd
 import pytz
 from pydantic import BaseModel
-from sklearn.metrics.pairwise import cosine_similarity
 
 from embeddings_lake.core.hnsw import HNSW
 
@@ -146,22 +145,6 @@ def experimental_calculate_monthly_s3_costs(file_size_gb):
 
     return monthly_cost
 
-
-# TODO: unused
-def cosine_similarity_p(data_vectors, target, num_groups=5, split_if_more=50):
-    if len(data_vectors) <= split_if_more:
-        return cosine_similarity(data_vectors, target)
-
-    data_groups = np.array_split(data_vectors, num_groups)
-
-    most_similar_all = []
-
-    for most_similar_indices in executor.map(
-        lambda group: cosine_similarity(group, target), data_groups
-    ):
-        most_similar_all.append(most_similar_indices)
-
-    return np.concatenate(most_similar_all)
 
 
 class LazyBucket(BaseModel):
