@@ -2,7 +2,6 @@ from heapq import heapify, heappop, heappush, heapreplace, nlargest, nsmallest
 from math import log2
 from operator import itemgetter
 from random import random
-from sklearn.metrics.pairwise import paired_cosine_distances
 
 import numpy as np
 
@@ -14,15 +13,9 @@ def l2_distance(a, b):
     return np.linalg.norm(a - b)
 
 def cosine_distance(a, b):
-    a = np.asarray(a)
-    b = np.asarray(b)
-
-    if a.ndim == 1:
-        a = a.reshape(1, -1)
-    if b.ndim == 1:
-        b = b.reshape(1, -1)
-
-    return paired_cosine_distances(a, b)[0]
+    """ https://stackoverflow.com/questions/58381092/difference-between-cosine-similarity-and-cosine-distance """
+    
+    return (1 - np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
 
 class HNSW:
     """Navigable small world models are defined as any network with
