@@ -13,14 +13,10 @@ import numpy as np
 import pandas as pd
 import pytz
 from pydantic import BaseModel
+import boto3
+
 
 from embeddings_lake.core.hnsw import HNSW
-
-# Optional dependencies
-try:
-    import boto3
-except ImportError:
-    boto3 = object()
 
 
 logger = logging.getLogger(__name__)
