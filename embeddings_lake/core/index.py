@@ -20,7 +20,12 @@ from embeddings_lake.core.hnsw import HNSW
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+logger.setLevel(level=logging.INFO)
+console_handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
 
 
 class LSH:
@@ -458,22 +463,27 @@ class Index(BaseModel):
 
     @timer_decorator
     def _query(self, vector, k: int = 4, radius=5) -> list:
+        logger.info("Here01")
         results = []
         vector = np.array(vector)
         ts = time.time()
         s = 0
         for shard in self.adjacent_routing(vector, radius=radius):
+            logger.info(f"adjacent bucket_name - {shard.key}")
             te = time.time() - ts
             shard._lazy_load()
             closest_indices_d = shard.search(vector, k=k)
-            
+            logger.info("closest_indices_d")
+            logger.info(closest_indices_d)
             for idx, distance in closest_indices_d:
                 results.append((
                     distance,
                     shard.dirty_rows[idx]
                 ))
+                logger.info("distance, dirty rows")
+                logger.info(f"{distance}, {shard.dirty_rows[idx]['metadata']['file_path']}")
             s+=1
-            logging.info(f"Checked Shards: {s}")
+            logger.info
         if not results:
             return [], []
         # Remove Duplicates and Sort based on the distance
@@ -481,6 +491,8 @@ class Index(BaseModel):
         unique_results = list({row["id"]: {**row, "distance":float(dist)} for dist, row in results}.values())
         vectors_ret = [result["vector"] for result in unique_results]
 
+        logger.info("unique_results up to k")
+        logger.info(unique_results[:k])
         return vectors_ret[:k], unique_results[:k]
 
     def query(self, vector, k: int = 4, radius: int = 5) -> list:
