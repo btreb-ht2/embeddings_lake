@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "embeddings_lake"
-version = "1.2.0"
+version = "1.2.1"
 description = "S3 vector database for bigdata"
 authors = ["Alexander Miasoiedov <msoedov@gmail.com>"]
 maintainers = [
