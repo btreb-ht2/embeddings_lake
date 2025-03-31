@@ -329,17 +329,17 @@ class S3Bucket(LazyBucket):
     def _lazy_load(self):
         if self.loaded:
             return
-        logger.info(f"Loading fragment {self.key} from S3")
+        logger.debug(f"Loading fragment {self.key} from S3")
         # Check if object exists in S3
         try:
             self.s3_client.head_object(Bucket=self.remote_location, Key=self.key)
         except Exception:
-            logger.info("Fragment does not exist in S3")
+            logger.debug("Fragment does not exist in S3")
             super()._lazy_load()
         except Exception as e:
             logger.exception(f"Unexpected error while checking for fragment in S3: {e}")
         else:
-            logger.info("Fragment exists in S3, downloading...")
+            logger.debug("Fragment exists in S3, downloading...")
             os.makedirs(os.path.dirname(self.frame_location), exist_ok=True)
             self.s3_client.download_file(
                 self.remote_location, self.key, Filename=self.frame_location
@@ -352,7 +352,7 @@ class S3Bucket(LazyBucket):
         super().sync()
         if self.frame.empty:
             return
-        logger.info(f"Uploading fragment {self.key} to S3")
+        logger.debug(f"Uploading fragment {self.key} to S3")
         self.s3_client.upload_file(
             self.frame_location,
             self.remote_location,
@@ -463,36 +463,31 @@ class Index(BaseModel):
 
     @timer_decorator
     def _query(self, vector, k: int = 4, radius=5) -> list:
-        logger.info("Here01")
         results = []
         vector = np.array(vector)
         ts = time.time()
         s = 0
         for shard in self.adjacent_routing(vector, radius=radius):
-            logger.info(f"adjacent bucket_name - {shard.key}")
+            logger.debug(f"adjacent bucket_name - {shard.key}")
             te = time.time() - ts
             shard._lazy_load()
             closest_indices_d = shard.search(vector, k=k)
-            logger.info("closest_indices_d")
-            logger.info(closest_indices_d)
+            logger.debug("closest_indices_d")
+            logger.debug(closest_indices_d)
             for idx, distance in closest_indices_d:
                 results.append((
                     distance,
                     shard.dirty_rows[idx]
                 ))
-                logger.info("distance, dirty rows")
-                logger.info(f"{distance}, {shard.dirty_rows[idx]['metadata']['file_path']}")
+                logger.debug("distance, dirty rows")
+                logger.debug(f"{distance}, {shard.dirty_rows[idx]['metadata']['file_path']}")
             s+=1
-            logger.info
         if not results:
             return [], []
         # Remove Duplicates and Sort based on the distance
         results.sort(key=lambda x: x[0])
         unique_results = list({row["id"]: {**row, "distance":float(dist)} for dist, row in results}.values())
         vectors_ret = [result["vector"] for result in unique_results]
-
-        logger.info("unique_results up to k")
-        logger.info(unique_results[:k])
         return vectors_ret[:k], unique_results[:k]
 
     def query(self, vector, k: int = 4, radius: int = 5) -> list:
